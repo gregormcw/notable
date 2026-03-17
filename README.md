@@ -97,7 +97,7 @@ SQLite stores structured note metadata and is the source of truth for note conte
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/notable.git
+git clone https://github.com/gregormcw/notable.git
 cd notable
 
 # Install torch CPU build first to avoid pulling the CUDA version
