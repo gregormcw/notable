@@ -17,7 +17,7 @@
       --amber:     #C97C2A;
       --amber-dim: #8A5418;
       --text:      #1a1512;
-      --muted:     #7a7068;
+      --muted:     #5e574f;
       --mono:      'JetBrains Mono', monospace;
       --serif:     'Cormorant Garamond', Georgia, serif;
       --sans:      'DM Sans', sans-serif;
@@ -97,7 +97,7 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      height: 120px;
+      height: 220px;
     }
 
     .record-ring {
@@ -232,7 +232,7 @@
       font-size: 1.45rem;
       line-height: 1.5;
       color: var(--text);
-      font-weight: 400;
+      font-weight: 600;
     }
 
     .entry-empty {
@@ -247,7 +247,7 @@
       display: flex;
       flex-direction: column;
       padding: 3rem 3.5rem;
-      gap: 2rem;
+      gap: 2.5rem;
       overflow: hidden;
     }
 
@@ -406,11 +406,46 @@
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; overflow: auto; }
-      .panel-capture { border-right: none; border-bottom: 1px solid var(--border); min-height: 60vh; }
-      header { padding: 1.25rem 1.5rem; }
-      .panel-capture, .panel-search { padding: 2rem 1.5rem; }
-      footer { padding: 1rem 1.5rem; }
+      /* Switch to natural page scroll — avoids fixed-height viewport issues on iOS */
+      html, body { height: auto; }
+      body { display: flex; flex-direction: column; min-height: 100svh; }
+
+      /* Header — prevent wordmark + tagline squashing */
+      header { padding: 1rem 1.25rem; gap: 0.75rem; }
+      .wordmark { font-size: 2rem; }
+      .tagline { font-size: 0.7rem; letter-spacing: 0.15em; }
+
+      /* Main stacks vertically and grows with content */
+      main {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+      }
+
+      .panel-capture {
+        flex: none;
+        overflow: visible;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        min-height: auto;
+        padding: 2rem 1.5rem;
+      }
+
+      /* Constrain transcript so it doesn't push the search panel off-screen */
+      .transcript-entries { max-height: 40vh; overflow-y: auto; }
+
+      .panel-search {
+        flex: 1 0 auto;
+        overflow: visible;
+        padding: 2rem 1.5rem;
+      }
+
+      /* Results flow naturally — page scroll handles the rest */
+      .results-area { overflow: visible; min-height: 0; }
+
+      footer { flex-shrink: 0; padding: 1rem 1.25rem; }
     }
   </style>
 </head>
@@ -590,7 +625,8 @@
       scriptProcessor = workletNode;
 
       // Open WebSocket
-      ws = new WebSocket(`ws://${location.host}/ws/ws`);
+      const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${wsProtocol}//${location.host}/ws/ws`);
       ws.binaryType = 'arraybuffer';
 
       ws.onopen = () => {

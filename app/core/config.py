@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     vad_speech_pad_ms: int = 50
     noise_gate_db: float = -40.0
     target_db: float = -20.0
-    apply_noise_reduction: bool = False
+    apply_noise_reduction: bool = True
     debug_save_segments: bool = False
     debug_segment_dir: str = "./debug_segments"
 
