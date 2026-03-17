@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notable</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #faf8f5;
+      --surface:   #f4f0ea;
+      --border:    #2e2820;
+      --amber:     #C97C2A;
+      --amber-dim: #8A5418;
+      --text:      #1a1512;
+      --muted:     #7a7068;
+      --mono:      'JetBrains Mono', monospace;
+      --serif:     'Cormorant Garamond', Georgia, serif;
+      --sans:      'DM Sans', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      padding: 1.75rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wordmark {
+      font-family: var(--serif);
+      font-size: 3rem;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .wordmark em {
+      font-style: italic;
+      color: var(--amber);
+    }
+
+    .tagline {
+      font-size: 0.8rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 400;
+      cursor: default;
+      user-select: none;
+      padding-bottom: 0.25rem;
+    }
+
+    /* ── Main ── */
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ── Capture panel ── */
+    .panel-capture {
+      display: flex;
+      flex-direction: column;
+      padding: 3rem 3.5rem;
+      gap: 2.5rem;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* ── Record button ── */
+    .record-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      height: 120px;
+    }
+
+    .record-ring {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 1px solid var(--amber-dim);
+      opacity: 0;
+      transform: scale(1);
+    }
+
+    .record-ring.pulse {
+      animation: ring-pulse 1.8s ease-out infinite;
+    }
+
+    .record-ring:nth-child(2) { animation-delay: 0.6s; }
+    .record-ring:nth-child(3) { animation-delay: 1.2s; }
+
+    @keyframes ring-pulse {
+      0%   { transform: scale(1);   opacity: 0.5; }
+      100% { transform: scale(2.4); opacity: 0; }
+    }
+
+    .record-btn {
+      position: relative;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.3s, background 0.3s, transform 0.15s;
+      z-index: 1;
+      color: var(--text);
+    }
+
+    .record-btn:hover {
+      border-color: var(--amber);
+      transform: scale(1.05);
+    }
+
+    .record-btn.recording {
+      border-color: var(--amber);
+      background: #fff8f0;
+    }
+
+    .record-btn .icon-mic,
+    .record-btn .icon-stop {
+      transition: opacity 0.2s, transform 0.2s;
+      position: absolute;
+    }
+
+    .record-btn .icon-stop { opacity: 0; transform: scale(0.7); }
+    .record-btn.recording .icon-mic { opacity: 0; transform: scale(0.7); }
+    .record-btn.recording .icon-stop { opacity: 1; transform: scale(1); }
+
+    /* ── Status ── */
+    .status-area {
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .status-label {
+      font-size: 0.8rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .status-label.active { color: var(--amber); }
+
+    /* ── Transcript log ── */
+    .transcript-log {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .transcript-log-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .transcript-entries {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 0.5rem;
+    }
+
+    .transcript-entries::-webkit-scrollbar { width: 2px; }
+    .transcript-entries::-webkit-scrollbar-track { background: transparent; }
+    .transcript-entries::-webkit-scrollbar-thumb { background: var(--border); border-radius: 1px; }
+
+    .transcript-entry {
+      display: grid;
+      grid-template-columns: 5rem 1fr;
+      gap: 1rem;
+      align-items: start;
+      animation: entry-in 0.35s ease;
+    }
+
+    @keyframes entry-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .entry-time {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding-top: 0.3rem;
+      letter-spacing: 0.04em;
+    }
+
+    .entry-text {
+      font-family: var(--serif);
+      font-size: 1.45rem;
+      line-height: 1.5;
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .entry-empty {
+      font-size: 1rem;
+      color: var(--muted);
+      font-style: italic;
+      font-family: var(--serif);
+    }
+
+    /* ── Search panel ── */
+    .panel-search {
+      display: flex;
+      flex-direction: column;
+      padding: 3rem 3.5rem;
+      gap: 2rem;
+      overflow: hidden;
+    }
+
+    .panel-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .search-form {
+      flex-shrink: 0;
+    }
+
+    .search-input-wrap {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 1.35rem;
+      font-weight: 300;
+      padding: 1rem 3.5rem 1rem 1.25rem;
+      outline: none;
+      transition: border-color 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .search-input::placeholder { color: var(--muted); font-style: italic; }
+    .search-input:focus { border-color: var(--amber); }
+
+    .search-submit {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-submit:hover { color: var(--amber); }
+
+    /* ── Results ── */
+    .results-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+      min-height: 0;
+      padding-right: 0.5rem;
+    }
+
+    .results-area::-webkit-scrollbar { width: 2px; }
+    .results-area::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .result-card {
+      border: 1px solid var(--border);
+      padding: 1.5rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: border-color 0.2s, background 0.2s;
+      animation: entry-in 0.35s ease both;
+      cursor: default;
+    }
+
+    .result-card:hover {
+      border-color: var(--amber);
+      background: var(--surface);
+    }
+
+    .result-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-id {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .result-score {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--amber-dim);
+      letter-spacing: 0.04em;
+    }
+
+    .result-text {
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      line-height: 1.55;
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .results-empty {
+      font-size: 1rem;
+      color: var(--muted);
+      font-style: italic;
+      font-family: var(--serif);
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 1rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-note {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .conn-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .conn-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+
+    .conn-dot.live {
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; overflow: auto; }
+      .panel-capture { border-right: none; border-bottom: 1px solid var(--border); min-height: 60vh; }
+      header { padding: 1.25rem 1.5rem; }
+      .panel-capture, .panel-search { padding: 2rem 1.5rem; }
+      footer { padding: 1rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">Not<em>a</em>ble</div>
+  <div class="tagline">Voice · Memory · Retrieval</div>
+</header>
+
+<main>
+  <!-- ── Capture ── -->
+  <section class="panel-capture">
+    <div class="record-wrap">
+      <div class="record-ring" id="ring1"></div>
+      <div class="record-ring" id="ring2"></div>
+      <div class="record-ring" id="ring3"></div>
+      <button class="record-btn" id="recordBtn" title="Start recording">
+        <svg class="icon-mic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="2" width="6" height="11" rx="3"/>
+          <path d="M5 10a7 7 0 0 0 14 0"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="8" y1="22" x2="16" y2="22"/>
+        </svg>
+        <svg class="icon-stop" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="4" y="4" width="16" height="16" rx="2"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="status-area">
+      <div class="status-label" id="statusLabel">Ready</div>
+    </div>
+
+    <div class="transcript-log">
+      <div class="transcript-log-label">Captured notes</div>
+      <div class="transcript-entries" id="transcriptEntries">
+        <div class="entry-empty">Notes will appear here as you speak.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Search ── -->
+  <section class="panel-search">
+    <div class="panel-label">Recall</div>
+
+    <div class="search-form">
+      <div class="search-input-wrap">
+        <input
+          class="search-input"
+          id="searchInput"
+          type="text"
+          placeholder="What did I say about…"
+          autocomplete="off"
+        />
+        <button class="search-submit" id="searchBtn" title="Search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="results-area" id="resultsArea">
+      <div class="results-empty">Search results will appear here.</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-note">Notable — local · private · yours</div>
+  <div class="conn-indicator">
+    <div class="conn-dot" id="connDot"></div>
+    <span id="connLabel">Idle</span>
+  </div>
+</footer>
+
+<script>
+  // ── State ──
+  let ws = null;
+  let audioCtx = null;
+  let mediaStream = null;
+  let scriptProcessor = null;
+  let recording = false;
+
+  // ── Elements ──
+  const recordBtn    = document.getElementById('recordBtn');
+  const statusLabel  = document.getElementById('statusLabel');
+  const transcripts  = document.getElementById('transcriptEntries');
+  const searchInput  = document.getElementById('searchInput');
+  const searchBtn    = document.getElementById('searchBtn');
+  const resultsArea  = document.getElementById('resultsArea');
+  const connDot      = document.getElementById('connDot');
+  const connLabel    = document.getElementById('connLabel');
+  const rings        = [
+    document.getElementById('ring1'),
+    document.getElementById('ring2'),
+    document.getElementById('ring3'),
+  ];
+
+  // ── Helpers ──
+  function setStatus(text, active = false) {
+    statusLabel.textContent = text;
+    statusLabel.classList.toggle('active', active);
+  }
+
+  function setConn(live, label) {
+    connDot.classList.toggle('live', live);
+    connLabel.textContent = label;
+  }
+
+  function setPulse(on) {
+    rings.forEach(r => r.classList.toggle('pulse', on));
+  }
+
+  function formatTime(date) {
+    return date.toTimeString().slice(0, 8);
+  }
+
+  function addTranscriptEntry(text) {
+    const empty = transcripts.querySelector('.entry-empty');
+    if (empty) empty.remove();
+
+    const entry = document.createElement('div');
+    entry.className = 'transcript-entry';
+    entry.innerHTML = `
+      <div class="entry-time">${formatTime(new Date())}</div>
+      <div class="entry-text">${text}</div>
+    `;
+    transcripts.prepend(entry);
+  }
+
+  // ── AudioWorklet processor (inlined as blob URL) ──
+  // Runs on a dedicated audio thread — avoids ScriptProcessorNode glitches.
+  const WORKLET_CODE = `
+    class AudioSender extends AudioWorkletProcessor {
+      constructor() {
+        super();
+        this._buf = [];
+        this._chunkSize = 4096;
+      }
+      process(inputs) {
+        const ch = inputs[0][0];
+        if (!ch) return true;
+        for (let i = 0; i < ch.length; i++) this._buf.push(ch[i]);
+        while (this._buf.length >= this._chunkSize) {
+          const chunk = new Float32Array(this._buf.splice(0, this._chunkSize));
+          this.port.postMessage(chunk.buffer, [chunk.buffer]);
+        }
+        return true;
+      }
+    }
+    registerProcessor('audio-sender', AudioSender);
+  `;
+
+  // ── Recording ──
+  recordBtn.addEventListener('click', () => {
+    recording ? stopRecording() : startRecording();
+  });
+
+  async function startRecording() {
+    try {
+      setStatus('Requesting microphone…');
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+
+      audioCtx = new AudioContext();
+      const source = audioCtx.createMediaStreamSource(mediaStream);
+
+      // Load AudioWorklet — runs on dedicated audio thread, no main-thread glitches
+      const blob = new Blob([WORKLET_CODE], { type: 'application/javascript' });
+      const workletUrl = URL.createObjectURL(blob);
+      await audioCtx.audioWorklet.addModule(workletUrl);
+      URL.revokeObjectURL(workletUrl);
+
+      const workletNode = new AudioWorkletNode(audioCtx, 'audio-sender');
+      scriptProcessor = workletNode;
+
+      // Open WebSocket
+      ws = new WebSocket(`ws://${location.host}/ws/ws`);
+      ws.binaryType = 'arraybuffer';
+
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ sr: audioCtx.sampleRate }));
+        setConn(true, 'Live');
+        setStatus('Listening…', true);
+        setPulse(true);
+        recording = true;
+        recordBtn.classList.add('recording');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.transcript) addTranscriptEntry(msg.transcript);
+        } catch (_) {}
+      };
+
+      ws.onerror = () => setStatus('Connection error', false);
+
+      ws.onclose = () => {
+        setConn(false, 'Idle');
+        setStatus('Ready');
+        recording = false;
+        recordBtn.classList.remove('recording');
+        setPulse(false);
+        ws = null;
+      };
+
+      // Receive chunks from audio thread and forward over WebSocket
+      workletNode.port.onmessage = (e) => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(e.data);
+        }
+      };
+
+      source.connect(workletNode);
+
+    } catch (err) {
+      setStatus('Microphone unavailable');
+      console.error(err);
+    }
+  }
+
+  function stopRecording() {
+    recording = false;
+    recordBtn.classList.remove('recording');
+    setPulse(false);
+    setStatus('Processing…');
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ cmd: 'stop' }));
+      // Keep the socket open until the server closes once final transcript is sent.
+      ws.addEventListener('close', () => {
+        ws = null;
+      }, { once: true });
+    } else {
+      setStatus('Ready');
+      ws = null;
+    }
+
+    if (scriptProcessor) { scriptProcessor.disconnect(); scriptProcessor = null; }
+    if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  }
+
+  // ── Search ──
+  async function runSearch() {
+    const q = searchInput.value.trim();
+    if (!q) return;
+
+    resultsArea.innerHTML = '<div class="results-empty">Searching…</div>';
+
+    try {
+      const res = await fetch('/query/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: q, n_results: 5 }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const results = await res.json();
+
+      if (!results.length) {
+        resultsArea.innerHTML = '<div class="results-empty">No matching notes found.</div>';
+        return;
+      }
+
+      resultsArea.innerHTML = '';
+      results.forEach((r, i) => {
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.style.animationDelay = `${i * 0.06}s`;
+        const score = (1 - r.distance).toFixed(3);
+      const createdAt = r.created_at ? new Date(r.created_at).toLocaleString() : r.note_id.slice(0, 8);
+        card.innerHTML = `
+          <div class="result-meta">
+            <span class="result-id">${createdAt}</span>
+            <span class="result-score">sim ${score}</span>
+          </div>
+          <div class="result-text">${r.text}</div>
+        `;
+        resultsArea.appendChild(card);
+      });
+
+    } catch (err) {
+      resultsArea.innerHTML = '<div class="results-empty">Search failed. Is the server running?</div>';
+      console.error(err);
+    }
+  }
+
+  searchBtn.addEventListener('click', runSearch);
+  searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+</script>
+</body>
+</html>
