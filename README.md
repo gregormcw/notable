@@ -25,7 +25,7 @@ Browser mic (AudioWorklet)
 │        ▼                                            │
 │  Pre-processing pipeline                            │
 │    · DC offset removal                              │
-│    · Noise gate (–40 dBFS floor)                   │
+│    · Noise gate (–40 dBFS floor)                    │
 │    · Spectral noise reduction (noisereduce)         │
 │    · RMS normalisation (–20 dBFS target)            │
 │        │                                            │
@@ -33,13 +33,13 @@ Browser mic (AudioWorklet)
 │  faster-whisper (local, int8 quantised)             │
 │        │  transcript text                           │
 │        ▼                                            │
-│  SQLite  ←──────────────────────────────────────┐  │
-│  (note_id, text, timestamp, duration, tokens)   │  │
-│                                                  │  │
-│  OpenAI text-embedding-3-small                   │  │
-│        │  1536-dim vector                         │  │
-│        ▼                                          │  │
-│  ChromaDB (cosine similarity, persistent)        ─┘  │
+│  SQLite  ←──────────────────────────────────────┐   │
+│  (note_id, text, timestamp, duration, tokens)   │   │
+│                                                 │   │
+│  OpenAI text-embedding-3-small                  │   │
+│        │  1536-dim vector                       │   │
+│        ▼                                        │   │
+│  ChromaDB (cosine similarity, persistent) ──────┘   │
 └─────────────────────────────────────────────────────┘
         │  transcript via WebSocket
         ▼
