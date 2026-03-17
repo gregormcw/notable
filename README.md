@@ -2,6 +2,8 @@
 
 **Voice-first note capture and semantic retrieval.**
 
+![Notable](docs/screenshot.png)
+
 Notable lets you speak a thought and retrieve it later in natural language. Press record, say something, stop — your words are transcribed, embedded, and stored locally. Later, ask "what did I say about X?" and Notable surfaces the closest matches semantically, not just by keyword.
 
 Everything runs on your machine. No cloud ASR, no subscription, no data leaving the device except for OpenAI embeddings generation.
