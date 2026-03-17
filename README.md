@@ -27,10 +27,10 @@ Browser mic (AudioWorklet)
 │    · DC offset removal                              │
 │    · Noise gate (–40 dBFS floor)                    │
 │    · Spectral noise reduction (noisereduce)         │
-│    · RMS normalisation (–20 dBFS target)            │
+│    · RMS normalization (–20 dBFS target)            │
 │        │                                            │
 │        ▼                                            │
-│  faster-whisper (local, int8 quantised)             │
+│  faster-whisper (local, int8 quantized)             │
 │        │  transcript text                           │
 │        ▼                                            │
 │  SQLite  ←──────────────────────────────────────┐   │
@@ -54,13 +54,13 @@ Browser mic (AudioWorklet)
 Silero is a lightweight neural VAD model (~2MB) that significantly outperforms energy-based approaches in realistic recording conditions — laptop microphones, background noise, soft speech. `VADIterator` is used rather than `get_speech_timestamps` to support chunk-based streaming, where audio arrives incrementally from the browser rather than as a complete file.
 
 **Why faster-whisper locally?**
-On-device ASR means no audio leaves the machine and there is no per-request API cost. faster-whisper uses CTranslate2 with int8 quantisation, making CPU inference practical. The `base` model offers a reasonable accuracy/latency tradeoff; `small` is available in config for better accuracy.
+On-device ASR means no audio leaves the machine and there is no per-request API cost. faster-whisper uses CTranslate2 with int8 quantization, making CPU inference practical. The `base` model offers a reasonable accuracy/latency tradeoff; `small` is available in config for better accuracy.
 
 **Why AudioWorklet over ScriptProcessorNode?**
 `ScriptProcessorNode` runs on the main browser thread and is deprecated. It introduces glitches and timing artifacts under load. `AudioWorklet` processes audio on a dedicated thread, producing a clean signal at the cost of a slightly more complex setup.
 
 **Why separate VAD and pre-processing?**
-VAD determines *when* speech occurs. Pre-processing improves the *quality* of the signal fed to ASR. Keeping them separate makes each independently tunable — VAD sensitivity, noise gate threshold, and normalisation target are all configurable via `.env` without touching code.
+VAD determines *when* speech occurs. Pre-processing improves the *quality* of the signal fed to ASR. Keeping them separate makes each independently tunable — VAD sensitivity, noise gate threshold, and normalization target are all configurable via `.env` without touching code.
 
 **Dual-store design (SQLite + ChromaDB)**
 SQLite stores structured note metadata and is the source of truth for note content. ChromaDB stores embedding vectors for similarity search. The two stores are linked by a shared `note_id` (UUID). This separation keeps concerns clean: structured queries against SQLite, vector search against ChromaDB.
@@ -129,7 +129,7 @@ Open `http://localhost:8000/static/index.html`.
 | `VAD_MIN_SPEECH_MS` | `250` | Minimum speech segment duration |
 | `VAD_MIN_SILENCE_MS` | `500` | Silence duration to trigger end event |
 | `NOISE_GATE_DB` | `-40.0` | Amplitude floor below which samples are zeroed |
-| `TARGET_DB` | `-20.0` | RMS normalisation target level |
+| `TARGET_DB` | `-20.0` | RMS normalization target level |
 
 ---
 
@@ -155,7 +155,7 @@ Type a natural language query in the search box on the right and press Enter or 
 ## Future directions
 
 - Async background embedding to reduce post-speech latency
-- Speaker diarisation for multi-speaker recordings
-- LLM-powered note summarisation and theme extraction
+- Speaker diarization for multi-speaker recordings
+- LLM-powered note summarization and theme extraction
 - Export to Markdown / Obsidian vault
 - REST API for third-party integrations
